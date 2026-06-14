@@ -25,11 +25,12 @@ void ATornadoActor::Tick(float DeltaTime)
 
 }
 
+
 /*
  * TornadoOrigin: Reference point for the Tornado at the bottom and center of the capsule/cylinder
  * ObjectLocation: World Location of the Object
  */
-void CalculateTornadoForcePlayer(FVector TornadoOrigin, FVector ObjectLocation, FVector ObjectVelocity, float ObjectMass) {
+FVector ATornadoActor::CalculateTornadoForcePlayer(FVector TornadoOrigin, FVector ObjectLocation, FVector ObjectVelocity, float ObjectMass) {
 	/* 
 	 * Calculations for Rankine Vortex Converted to Cartesian Coordinates from Cylindrical coordinates
 	 * defined here : https://en.wikipedia.org/wiki/Rankine_vortex
@@ -58,8 +59,26 @@ void CalculateTornadoForcePlayer(FVector TornadoOrigin, FVector ObjectLocation, 
 	// V_v =  r * V_theta * sin(theta) =  r * V_theta x / r
 	float V_u = -radius * V_theta * location.Y / radius;
 	float V_v =  radius * V_theta * location.X / radius;
-	// TODO float V_z
+	// TODO
+	float V_z = 1; // Upwards force
+	FVector V_point = FVector(V_u, V_v, V_z);
 
-	// Drag equation
-	// 1/2 p v_rel 
+	/* Drag equation
+	 * F_d = 1/2 * p * A * c_d * |v_rel|^2 
+	 * p Mass density
+	 * A Reference area
+	 * c_d Drag coefficient, experimentally determined related to the object geometry 
+	 * v_rel relative velocity of fluid flow wrt object velocity
+	 * 
+	 * TODO add the granularity to this equation instead of just C
+	 * Simplified formula combining p A c_d as a constant C (lmao)
+	 * F_d = C/2 |v_rel|^2
+	 * For the vector: C/2 |v_rel| v_rel
+	 */ 
+
+	const float C = 0.00001; // Higher = More drag
+	FVector v_rel = V_point - ObjectVelocity;
+	FVector DragForce = C / 2 * v_rel.Length() * v_rel;
+
+	return DragForce;
 }
