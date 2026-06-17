@@ -60,5 +60,18 @@ void ACharacterGlide::Glide(FVector ForwardVector, FVector UpVector, float Delta
 	CMC->Velocity = V_forward + V_upscaled + V_sidescaled;
 
 
-	//CMC->AddForce();
+	// "Disable" gravity for custom glider calculation
+	CMC->AddForce(FVector(0, 0, -CMC->GetGravityZ() * CMC->Mass));
+
+	// Glide calculations
+	const double MaxLift = 430;
+	FVector GravityVector = FVector(0, 0, CMC->GetGravityZ());
+	double DownforceMagnitude = FVector::DotProduct(UpVector, GravityVector);
+	FVector EffectiveLiftVector = UpVector * FMath::Min(DownforceMagnitude - MaxLift, 0.0);
+	double ThrustMagnitude = FVector::DotProduct(ForwardVector, GravityVector);
+	FVector ThrustVector = ForwardVector * ThrustMagnitude;
+
+	FVector ResultantForce = EffectiveLiftVector + ThrustVector;
+	CMC->AddForce(ResultantForce * CMC->Mass);
+	
 }
