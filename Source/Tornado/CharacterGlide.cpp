@@ -32,3 +32,33 @@ void ACharacterGlide::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 }
 
+void ACharacterGlide::Glide(FVector ForwardVector, FVector UpVector, float DeltaTime)
+{
+	UCharacterMovementComponent *CMC = GetCharacterMovement();
+
+	// Adjusting velocity to current direction
+	FVector Velocity = GetVelocity();
+	float ForwardMagnitude = FVector::DotProduct(Velocity, ForwardVector);
+	ForwardMagnitude = FMath::Max(ForwardMagnitude, 0.0f);
+	FVector V_forward = ForwardVector * ForwardMagnitude;
+
+	// Damping for upward component
+	FVector V_nonforward = Velocity - V_forward;
+	float UpwardMagnitude = FVector::DotProduct(V_nonforward, UpVector);
+	FVector V_up = UpVector * UpwardMagnitude;
+	FVector V_upscaled = V_up;
+	if (UpwardMagnitude < 0.0) {
+		const float UpHalfLife = 0.01;
+		V_upscaled = V_up * FMath::Pow(0.5, DeltaTime / UpHalfLife);
+	}
+
+	// Damping for non forward non up (side) component
+	FVector V_side = V_nonforward - V_up;
+	const float SideHalfLife = 0.5;
+	FVector V_sidescaled = V_side * FMath::Pow(0.5, DeltaTime / SideHalfLife);
+
+	CMC->Velocity = V_forward + V_upscaled + V_sidescaled;
+
+
+	//CMC->AddForce();
+}
