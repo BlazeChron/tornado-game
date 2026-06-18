@@ -61,7 +61,7 @@ void ACharacterGlide::Glide(FVector ForwardVector, FVector UpVector, float Delta
 
 
 	// "Disable" gravity for custom glider calculation
-	CMC->AddForce(FVector(0, 0, -CMC->GetGravityZ() * CMC->Mass));
+	//CMC->AddForce(FVector(0, 0, -CMC->GetGravityZ() * CMC->Mass));
 
 	// Glide calculations
 	const double MaxLift = 430;

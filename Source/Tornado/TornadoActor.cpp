@@ -81,9 +81,9 @@ FVector ATornadoActor::CalculateTornadoForcePlayer(FVector TornadoOrigin, FVecto
 	FVector v_rel = V_point - ObjectVelocity;
 	FVector DragForce = C / 2 * v_rel.Length() * v_rel;
 
-	UE_LOG(LogTemp, Warning, TEXT("Point Velocity: %s Magnitude: %f"), *V_point.ToString(), V_point.Length());
-	UE_LOG(LogTemp, Warning, TEXT("Object Velocity: %s Magnitude: %f"), *ObjectVelocity.ToString(), ObjectVelocity.Length());
-	UE_LOG(LogTemp, Warning, TEXT("DragForce: %s Magnitude: %f"), *DragForce.ToString(), DragForce.Length());
+	//UE_LOG(LogTemp, Warning, TEXT("Point Velocity: %s Magnitude: %f"), *V_point.ToString(), V_point.Length());
+	//UE_LOG(LogTemp, Warning, TEXT("Object Velocity: %s Magnitude: %f"), *ObjectVelocity.ToString(), ObjectVelocity.Length());
+	//UE_LOG(LogTemp, Warning, TEXT("DragForce: %s Magnitude: %f"), *DragForce.ToString(), DragForce.Length());
 
 	// Add Pressure Gradient Force (PGF)
 	// https://blog.matthewgove.com/2013/07/09/basic-physics-and-dynamics-of-a-tornado/
@@ -97,7 +97,9 @@ FVector ATornadoActor::CalculateTornadoForcePlayer(FVector TornadoOrigin, FVecto
 	*/
 	FVector PGFDirection = FVector(-location.X, -location.Y, 0);
 	FVector PGFForce = V_theta * CaughtMassThreshold * MinRadius * PGFDirection;
-	FVector UpForce = pow(9.81, (16 - radius) / 16 + 5) * FVector(0, 0, 1) * CaughtMassThreshold;
+	float multiplier = (16 - radius) / 16 + 1;
+	UE_LOG(LogTemp, Warning, TEXT("power: %f"), multiplier);
+	FVector UpForce = pow(9.81 * ObjectMass, multiplier) * FVector(0, 0, 1) * CaughtMassThreshold;
 
 
 	return DragForce + PGFForce + UpForce;
