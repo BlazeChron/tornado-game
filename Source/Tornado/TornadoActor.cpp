@@ -62,6 +62,24 @@ FVector ATornadoActor::CalculateTornadoForcePlayer(FVector TornadoOrigin, FVecto
 	float V_v =  V_theta * location.X;
 	// TODO
 	float V_z = 0; // Upwards force
+
+	// Add Pressure Gradient Force (PGF)
+	// https://blog.matthewgove.com/2013/07/09/basic-physics-and-dynamics-of-a-tornado/
+	const float CaughtMassThreshold = 200; // 100kg gets stuck at the minimum radius
+	const float MinRadius = 300 / 100; // meters
+	/*
+	 * Force that pulls in is mv^2/r
+	 * = (V_theta * X, V_theta * Y).length()^2 * m / r
+	 * = V_theta * (x, y).length()^2 * m / r
+	 * = V_theta * r^2 / r * m = V_theta * r * m
+	*/
+	FVector PGFDirection = FVector(-location.X, -location.Y, 0);
+	FVector PGFForce = V_theta * CaughtMassThreshold * MinRadius * PGFDirection;
+	float multiplier = (16 - radius) / 16 + 2;
+	UE_LOG(LogTemp, Warning, TEXT("power: %f"), multiplier);
+	V_z = pow(9.81, multiplier);
+	// should probably have drag for the upward motion
+
 	FVector V_point = FVector(V_u, V_v, V_z);
 
 	/* Drag equation
@@ -85,22 +103,7 @@ FVector ATornadoActor::CalculateTornadoForcePlayer(FVector TornadoOrigin, FVecto
 	//UE_LOG(LogTemp, Warning, TEXT("Object Velocity: %s Magnitude: %f"), *ObjectVelocity.ToString(), ObjectVelocity.Length());
 	//UE_LOG(LogTemp, Warning, TEXT("DragForce: %s Magnitude: %f"), *DragForce.ToString(), DragForce.Length());
 
-	// Add Pressure Gradient Force (PGF)
-	// https://blog.matthewgove.com/2013/07/09/basic-physics-and-dynamics-of-a-tornado/
-	const float CaughtMassThreshold = 200; // 100kg gets stuck at the minimum radius
-	const float MinRadius = 300 / 100; // meters
-	/*
-	 * Force that pulls in is mv^2/r
-	 * = (V_theta * X, V_theta * Y).length()^2 * m / r
-	 * = V_theta * (x, y).length()^2 * m / r
-	 * = V_theta * r^2 / r * m = V_theta * r * m
-	*/
-	FVector PGFDirection = FVector(-location.X, -location.Y, 0);
-	FVector PGFForce = V_theta * CaughtMassThreshold * MinRadius * PGFDirection;
-	float multiplier = (16 - radius) / 16 + 1;
-	UE_LOG(LogTemp, Warning, TEXT("power: %f"), multiplier);
-	FVector UpForce = pow(9.81 * ObjectMass, multiplier) * FVector(0, 0, 1) * CaughtMassThreshold;
 
 
-	return DragForce + PGFForce + UpForce;
+	return DragForce + PGFForce;
 }
