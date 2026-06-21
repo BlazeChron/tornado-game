@@ -29,4 +29,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void Glide(FVector ForwardVector, FVector UpVector, float DeltaTime);
+
+	UFUNCTION(BlueprintCallable)
+	void TurnCamera(FVector ForwardVector, FVector UpVector, float DeltaTime, float Yaw, float Pitch, float Roll);
 };

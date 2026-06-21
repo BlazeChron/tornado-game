@@ -32,6 +32,13 @@ void ACharacterGlide::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 }
 
+void ACharacterGlide::TurnCamera(FVector ForwardVector, FVector UpVector, float DeltaTime, float Yaw, float Pitch, float Roll)
+{
+	FRotator r = FRotator(Yaw, Pitch, Roll);
+	SetActorRotation(GetActorRotation().Add(Yaw, Pitch, Roll));
+	//SetActorRotation(r);
+}
+
 void ACharacterGlide::Glide(FVector ForwardVector, FVector UpVector, float DeltaTime)
 {
 	UCharacterMovementComponent *CMC = GetCharacterMovement();
